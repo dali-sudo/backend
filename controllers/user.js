@@ -9,7 +9,13 @@ export async function signin(req, res) {
     
     User.findOne({ email: req.body.email, password: req.body.password })
   .then((doc) => {
-    res.status(200).json(doc);
+    //res.status(200).json(doc);
+    var data = {
+      message: "User added", 
+       data:doc
+    }
+    res.status(200).json(data)
+    
   })
   .catch((err) => {
     res.status(500).json({ error: err });
@@ -19,7 +25,8 @@ export async function signin(req, res) {
   }
   else  return res.status(400).send({
     message : "Please provide a valid email adress.", 
-    reason : validators[reason].reason
+    error : validators[reason].reason,
+    
   })
   
 }
@@ -50,7 +57,7 @@ export async function signup(req, res) {
   }
   else return res.status(400).send({
     message : "Please provide a valid email adress.", 
-    reason : validators[reason].reason
+    error : validators[reason].reason
   })
 
 }
