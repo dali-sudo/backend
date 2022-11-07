@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
+import auth from './middlewares/auth.js'
 
 import { notFoundError, errorHandler } from './middlewares/error-handler.js';
 
@@ -34,6 +35,11 @@ mongoose
 
 
 app.use('/user', userRoutes);
+
+
+app.post("/user/welcome", auth, (req, res) => {
+  res.status(200).send("Welcome 🙌 ");
+});
 /*
 app.use(notFoundError);
 app.use(errorHandler);

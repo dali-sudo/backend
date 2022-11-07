@@ -1,52 +1,104 @@
 import User from "../models/user.js";
 import emailValidator from 'deep-email-validator';
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv/config'
 
 
 export async function signin(req, res) {
-  const {valid, reason , validators} = await isEmailValid(req.body.email) ;
-  if (valid) 
-  {
-    
-    User.findOne({ email: req.body.email, password: req.body.password })
-  .then((doc) => {
-    //res.status(200).json(doc);
-    var data = {
-      message: "User added", 
-       data:doc
+  try {
+    const {valid, reason , validators} = await isEmailValid(req.body.email) ;
+    if (!(req.body.email && req.body.password)) 
+    {
+      res.status(400).send("All input is required!! ")
     }
-    res.status(200).json(data)
     
-  })
-  .catch((err) => {
-    res.status(500).json({ error: err });
-  });
-
-
+     
+  
+      const user = await  User.findOne({ email: req.body.email})
+  
+      if (user && (await bcrypt.compare(req.body.password, user.password))) {
+        // Create token
+        const token = jwt.sign(
+          { user_id: user._id, email : req.body.email },
+          process.env.TOKEN_KEY,
+          {
+            expiresIn: "2h",
+          }
+        );
+        user.token= token ; 
+          
+        var data = {
+          message: "User logged in ", 
+           data:user
+        };
+        res.status(200).json(data);
+  
+     /* User.findOne({ email: req.body.email})
+    .then((doc) => {
+      
+      //res.status(200).json(doc);
+      var data = {
+        message: "User added", 
+         data:doc
+      }
+      res.status(200).json(data)
+      
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err });
+    });
+  */
+  
+    } else return res.status(401).send("cant find user !")
+    
+  } catch (err) 
+  {
+    console.log(err);
   }
-  else  return res.status(400).send({
-    message : "Please provide a valid email adress.", 
-    error : validators[reason].reason,
-    
-  })
   
 }
-
 export async function signup(req, res) {
   const {valid, reason , validators} = await isEmailValid(req.body.email) ;
-  if (valid) {
+  if (!(req.body.email && req.body.password && req.body.username ))
+  {
+    return res.status(409).send("All input is required"); 
+  }
+  
+  
+    // check if user already exist
+    // Validate if user exist in our database
+    
+    if (await User.findOne({email : req.body.email  })) {
+      return res.status(409).send("Email Already in use. Please Login");
+    }
+    const password = req.body.password
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    
+    const token = jwt.sign(
+      { user_id: req.body.id, email: req.body.email },
+      process.env.TOKEN_KEY,
+      {
+        expiresIn: "2h",
+      }
+    );
+    // Creating user with token and encrypted password on DB and response it 
     User.create({
       username: req.body.username,
-      password: req.body.password,
+      password: encryptedPassword,
       email: req.body.email
       //avatar: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`,
+
     })
       .then((newUser) => {
         res.status(200).json({
           username: newUser.username,
           password: newUser.password,
-          email: newUser.email
+          email: newUser.email,
+          token: token
          // avatar: newUser.avatar,
         });
+
       
       })
       .catch((err) => {
@@ -54,11 +106,7 @@ export async function signup(req, res) {
         
         
       });
-  }
-  else return res.status(400).send({
-    message : "Please provide a valid email adress.", 
-    error : validators[reason].reason
-  })
+  
 
 }
 

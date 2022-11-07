@@ -13,12 +13,14 @@ const userSchema = new Schema(
         },
         email : {
             type : String, 
-            required : true
+            required : true,
+            unique : true
         },
         avatar: {
             type: String,
             required: false
-        }
+        }, 
+        token: { type: String }
     },
     {
         timestamps: true
