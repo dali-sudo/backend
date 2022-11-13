@@ -8,6 +8,7 @@ import { notFoundError, errorHandler } from './middlewares/error-handler.js';
 
 
 import userRoutes from './routes/user.js';
+import postRoutes from './routes/post.js';
 
 
 const app = express();
@@ -35,6 +36,7 @@ mongoose
 
 
 app.use('/user', userRoutes);
+app.use('/post', postRoutes);
 
 
 app.post("/user/welcome", auth, (req, res) => {
