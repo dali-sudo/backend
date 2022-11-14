@@ -22,7 +22,8 @@ export async function signin(req, res) {
         if (await bcrypt.compare(req.body.password, user.password))
         {  
           user.token= createToken(user._id) ; 
-            
+          const imagePath = user.avatar
+          user.avatar= encode_base64(imagePath)
           var data = {
             message: "User logged in ", 
              data:user
