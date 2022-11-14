@@ -8,11 +8,13 @@ export function getAll(req, res) {
     .then(docs => {
         
       
-     
+        
             for(var j=0;j<docs.length;j++)
             {
+                if(docs[j].owner){
               if(docs[j].owner.avatar.length<100)
                 docs[j].owner.avatar= fs.readFileSync(docs[j].owner.avatar, "base64");
+                }
                }
           
        
