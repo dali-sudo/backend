@@ -1,16 +1,30 @@
 import Post from "../models/post.js";
-
+import fs from 'fs'
 
 export function getAll(req, res) {
     Post
-    .find({}).sort({ date: -1 }).populate('owner','username')
+    .find({}).sort({ date: -1 }).populate('owner','username avatar')
 
     .then(docs => {
+        
+      
+     
+            for(var j=0;j<docs.length;j++)
+            {
+              if(docs[j].owner.avatar.length<100)
+                docs[j].owner.avatar= fs.readFileSync(docs[j].owner.avatar, "base64");
+               }
+          
+       
+       
         res.status(200).json(docs);
+        
+    
     })
     .catch(err => {
         res.status(500).json({ error: err });
     });
+
 }
 
 export function addOnce(req, res) {
@@ -64,3 +78,17 @@ export function RemoveLike(req, res) {
         });
         
 }
+
+function encode_base64(filename) {
+    return fs.readFileSync(filename, "base64");
+  }
+  
+  // from base64 to actual image 
+  function base64_decode(base64Image, file) {
+    const buffer = Buffer.from(base64Image,"base64");
+    fs.writeFileSync(file,buffer);
+     console.log('******** File created from base64 encoded string ********');
+  
+  }
+  
+  
