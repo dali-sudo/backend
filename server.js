@@ -30,7 +30,7 @@ mongoose
   app.use(cors());
   
   app.use(morgan('dev'));
-  app.use(express.json());
+  app.use(express.json({limit: '50mb'}));
   //app.use(express.urlencoded({ extended: true }));
   //app.use('/img', express.static('public/images'));
 
@@ -42,6 +42,8 @@ app.use('/post', postRoutes);
 app.post("/user/welcome", auth, (req, res) => {
   res.status(200).send("Welcome 🙌 ");
 });
+
+
 /*
 app.use(notFoundError);
 app.use(errorHandler);

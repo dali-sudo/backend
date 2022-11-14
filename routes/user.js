@@ -18,15 +18,18 @@ router
 
 router.route("/signin").post(signin);
 
-router
-  .route("/:id")
+router.use(auth)
+  .route("/edit")
   .put(
   
     body("username").isLength({ min: 5 }),
-    body("username").isLength({ min: 5 }),
+    body("password").isLength({ min: 5 }),
     body("email"),
+    body("profilePic"),
     putOnce
   );
+
+ 
 
   
 

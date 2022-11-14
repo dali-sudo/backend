@@ -3,6 +3,7 @@ import emailValidator from 'deep-email-validator';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv/config'
+import fs from 'fs'
 
 
 export async function signin(req, res) {
@@ -17,40 +18,39 @@ export async function signin(req, res) {
   
       const user = await  User.findOne({ email: req.body.email})
   
-      if (user && (await bcrypt.compare(req.body.password, user.password))) {
-        // Create token
-        const token = jwt.sign(
-          { user_id: user._id, email : req.body.email },
-          process.env.TOKEN_KEY,
-          {
-            expiresIn: "2h",
-          }
-        );
-        user.token= token ; 
-          
+      if (user ) {
+        if (await bcrypt.compare(req.body.password, user.password))
+        {  
+          user.token= createToken(user._id) ; 
+            
+          var data = {
+            message: "User logged in ", 
+             data:user
+          };
+          res.status(200).json(data);
+    
+       /* User.findOne({ email: req.body.email})
+      .then((doc) => {
+        
+        //res.status(200).json(doc);
         var data = {
-          message: "User logged in ", 
-           data:user
-        };
-        res.status(200).json(data);
-  
-     /* User.findOne({ email: req.body.email})
-    .then((doc) => {
+          message: "User added", 
+           data:doc
+        }
+        res.status(200).json(data)
+        
+      })
+      .catch((err) => {
+        res.status(500).json({ error: err });
+      });
+    */
+
+
+        } else return res.status(401).send("wrong password");
+        // Create token
       
-      //res.status(200).json(doc);
-      var data = {
-        message: "User added", 
-         data:doc
-      }
-      res.status(200).json(data)
-      
-    })
-    .catch((err) => {
-      res.status(500).json({ error: err });
-    });
-  */
   
-    } else return res.status(401).send("cant find user !")
+    } else return res.status(401).send("cant find user !");
     
   } catch (err) 
   {
@@ -58,6 +58,8 @@ export async function signin(req, res) {
   }
   
 }
+
+
 export async function signup(req, res) {
   const {valid, reason , validators} = await isEmailValid(req.body.email) ;
   if (!(req.body.email && req.body.password && req.body.username ))
@@ -95,7 +97,7 @@ export async function signup(req, res) {
           username: newUser.username,
           password: newUser.password,
           email: newUser.email,
-          token: token
+          token: createToken(newUser._id)
          // avatar: newUser.avatar,
         });
 
@@ -110,28 +112,56 @@ export async function signup(req, res) {
 
 }
 
-export function putOnce(req, res) {
+export async function putOnce(req, res) {
   let newUser = {};
-  if(req.file == undefined) {
+  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+  if (req.body.profilePic)
+  { 
+    //convert string into actual image and save it to imgs
+   // const imagePath = `${req.protocol}://${req.get("host")}/uploads/${Math.random().toString(36).substring(2,7)}.png`
+   var imagePath = `./uploads/${Math.random().toString(36).substring(2,7)}.png`;
+    base64_decode(req.body.profilePic,imagePath);
+    
+    
+    
     newUser = {
-      username: req.body.username,
-      password: req.body.password,
-      email: req.body.email
-    }
+     
+    username: req.body.username,
+    password: encryptedPassword,
+    email: req.body.email,
+    avatar: imagePath,
+  }
+
+  //console.log(newUser);
+
   }
   else {
+
     newUser = {
+     
       username: req.body.username,
-      password: req.body.password,
+      password: encryptedPassword,
       email: req.body.email,
-    //  avatar: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
-    }
+      
+    
   }
-  User.findByIdAndUpdate(req.params.id, newUser)
+  
+}
+  
+    
+  
+  User.findByIdAndUpdate(req.user.id, newUser)
     .then((doc1) => {
-      User.findById(req.params.id)
+      console.log(doc1+"Doc1 **************************"); 
+      User.findById(req.user.id)
         .then((doc2) => {
-          res.status(200).json(doc2);
+           imagePath = doc2.avatar
+          doc2.avatar= encode_base64(imagePath)
+          console.log(doc2+"doc2 ***************");
+          res.status(200).json({
+            message: "user updated !! ", 
+            data : doc2
+          });
         })
         .catch((err) => {
           res.status(500).json({ error: err });
@@ -144,3 +174,30 @@ export function putOnce(req, res) {
 async function isEmailValid(email) {
   return emailValidator.validate(email)
 }
+
+const maxAge = 3*24*60*60
+const createToken = (id) => 
+{
+return jwt.sign(
+  { id },
+  process.env.TOKEN_KEY,
+  {
+    expiresIn: maxAge,
+  });
+
+}
+
+
+function encode_base64(filename) {
+  return fs.readFileSync(filename, "base64");
+}
+
+// from base64 to actual image 
+function base64_decode(base64Image, file) {
+  const buffer = Buffer.from(base64Image,"base64");
+  fs.writeFileSync(file,buffer);
+   console.log('******** File created from base64 encoded string ********');
+
+}
+
+
