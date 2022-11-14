@@ -3,7 +3,7 @@ import Post from "../models/post.js";
 
 export function getAll(req, res) {
     Post
-    .find({}).populate('owner','username')
+    .find({}).sort({ date: -1 }).populate('owner','username')
 
     .then(docs => {
         res.status(200).json(docs);
