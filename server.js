@@ -9,7 +9,7 @@ import { notFoundError, errorHandler } from './middlewares/error-handler.js';
 
 import userRoutes from './routes/user.js';
 import postRoutes from './routes/post.js';
-
+import petRoutes from './routes/pet.js';
 
 const app = express();
 const port = process.env.PORT || 9090;
@@ -37,6 +37,7 @@ mongoose
 
 app.use('/user', userRoutes);
 app.use('/post', postRoutes);
+app.use('/pet', petRoutes);
 
 
 app.post("/user/welcome", auth, (req, res) => {
