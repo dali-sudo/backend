@@ -21,8 +21,18 @@ const userSchema = new Schema(
             required: false
         }, 
         token: { type: String , 
-        required : false}
-    },
+        required : false},
+        followingcount: {
+            type: Number,
+        },
+        following: [ { type: Schema.Types.ObjectId, ref: 'User' }],
+        followerscount: {
+            type: Number,
+        },
+        followers: [ { type: Schema.Types.ObjectId, ref: 'User' }]
+
+    }
+    ,
     {
         timestamps: true
     }

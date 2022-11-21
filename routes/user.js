@@ -3,9 +3,29 @@ import { body } from "express-validator";
 
 import multer from "../middlewares/multer-config.js";
 import auth from '../middlewares/auth.js'
-import { signin, signup, putOnce } from "../controllers/user.js";
+import { signin, signup, putOnce ,Find,getUser,Follow,UnFollow} from "../controllers/user.js";
 
 const router = express.Router();
+router
+  .route("/find")
+  .post(
+    Find
+  );
+  router
+  .route("/follow")
+  .post(
+    Follow
+  );
+  router
+  .route("/unfollow")
+  .post(
+    UnFollow
+  );
+  router
+  .route("/getUser")
+  .post(
+    getUser
+  );
 
 router
   .route("/signup")
@@ -29,8 +49,7 @@ router.use(auth)
     putOnce
   );
 
- 
-
+  
   
 
 export default router;

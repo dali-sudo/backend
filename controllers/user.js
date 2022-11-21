@@ -94,8 +94,12 @@ export async function signup(req, res) {
     User.create({
       username: req.body.username,
       password: encryptedPassword,
-      email: req.body.email
+      email: req.body.email,
       //avatar: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`,
+      followerscount:0,
+      followingcount:0,
+      followers:[],
+      following:[],
 
     })
       .then((newUser) => {
@@ -207,3 +211,93 @@ function base64_decode(base64Image, file) {
 }
 
 
+export function Find(req, res) {
+  User
+  .find({username: {$regex : "^" + req.body.username}}, { 'username':true,'avatar':true})
+
+  .then(docs => {   
+    for(var j=0;j<docs.length;j++)
+    {
+        if(docs[j].avatar){
+         
+      if(docs[j].avatar.length<100)
+        docs[j].avatar= fs.readFileSync(docs[j].avatar, "base64");
+            
+        }
+       }
+
+      res.status(200).json(docs);
+  })
+  .catch(err => {
+      res.status(500).json({ error: err });
+  });
+
+}
+export async function Follow(req, res) {
+  // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
+try {
+  
+    let promise1 = User.findOneAndUpdate(
+      { "_id":req.body.myid }, { $inc:  {followingcount:1},$push:{following:req.body.followed}}
+    );
+
+    let promise2 = User.findOneAndUpdate(
+      { "_id":req.body.followed }, { $inc:{followerscount: 1},$push:{followers:req.body.myid}}
+    );
+
+    
+    let doc = await Promise.all([promise1, promise2]);
+
+    const docs = [
+      { myid:doc[0].id,followed:doc[1].id },
+    ];
+
+      // Invoquer la méthode create directement sur le modèle
+      res.status(200).json(docs);
+     } catch(err){
+      res.status(500).json(err);
+     }
+      
+
+    }
+    export async function UnFollow(req, res) {
+      // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
+    try {
+      
+        let promise1 = User.findOneAndUpdate(
+          { "_id":req.body.myid }, { $inc:  {followingcount:-1},$pull:{following:req.body.followed}}
+        );
+    
+        let promise2 = User.findOneAndUpdate(
+          { "_id":req.body.followed }, {$inc:{followerscount:-1},$pull:{followers:req.body.myid}}
+        );
+    
+        
+        let doc = await Promise.all([promise1, promise2])
+        const docs = [
+          { myid:doc[0].id,followed:doc[1].id },
+        ];
+          // Invoquer la méthode create directement sur le modèle
+          res.status(200).json(docs);
+         } catch(err){
+          res.status(500).json(err);
+         }
+          
+    
+        }
+
+      export function getUser(req, res) {
+        User
+        .findOne({"_id":req.body.id }, { 'username':true,'followerscount':true,'followingcount':true,'avatar':true,'followers':true})
+      
+        .then(docs => {   
+
+          docs.avatar= fs.readFileSync(docs.avatar, "base64");
+            res.status(200).json(docs);
+        })
+        .catch(err => {
+            res.status(500).json({ error: err });
+        });
+      
+      
+}

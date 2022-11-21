@@ -95,4 +95,32 @@ function encode_base64(filename) {
   
   }
   
-  
+  export function getPostsByUser(req, res) {
+    Post
+    .find({owner:req.body.id}).sort({ date: -1 }).populate('owner','username avatar')
+
+
+    .then(docs => {
+        
+      
+        for(var j=0;j<docs.length;j++)
+        {
+            if(docs[j].owner){
+                if(docs[j].owner.avatar){
+          if(docs[j].owner.avatar.length<100)
+            docs[j].owner.avatar= fs.readFileSync(docs[j].owner.avatar, "base64");
+                }
+            }
+           }
+    
+       
+       
+        res.status(200).json(docs);
+        
+    
+    })
+    .catch(err => {
+        res.status(500).json({ error: err });
+    });
+
+}
