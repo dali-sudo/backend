@@ -127,7 +127,8 @@ export async function get(req, res) {
    
     try {
       
-        let promise1 =  chatroom.findOne({ Users:req.body.id1,Users:req.body.id2})   
+        var user=[req.body.id1,req.body.id2]
+        let promise1 =  chatroom.findOne({ Users:{ "$all": user}})   
     
         let doc = await (promise1)
        console.log(doc)
@@ -140,7 +141,7 @@ export async function get(req, res) {
         })
 
         let doc2 = await Promise.all([promise2])
-        let promise3 =  chatroom.findOne({ Users:req.body.id1,Users:req.body.id2})   
+        let promise3 =  chatroom.findOne({ Users:{ "$all": user}})   
     
         let doc3 = await (promise3)
          docs = doc3
