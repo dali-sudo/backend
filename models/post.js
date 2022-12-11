@@ -19,7 +19,10 @@ const postSchema = new Schema(
         likescount: {
             type: Number,
         },
-        likes: [ { type: Schema.Types.ObjectId, ref: 'User' }]
+        likes: [ { type: Schema.Types.ObjectId, ref: 'User' }], 
+        tags : [{ 
+            type: String 
+        }]
     },
     
     {

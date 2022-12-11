@@ -1,5 +1,5 @@
 import express from "express";
-import { addOnce,getAllByUser} from "../controllers/pet.js";
+import { addOnce,getAllByUser,getPetTags} from "../controllers/pet.js";
 
 const router = express.Router();
 
@@ -16,6 +16,13 @@ router
  
     getAllByUser
   );
+
+  router
+  .route("/getPetImages")
+  .post(
+
+    getPetTags
+  )
  
  
   export default router;

@@ -1,6 +1,7 @@
 
 
 import Pet from "../models/pet.js";
+import Post from "../models/post.js";
 import fs from 'fs';
 
 
@@ -54,21 +55,36 @@ export function addOnce(req, res) {
     
 }
 
+export function getPetTags (req, res) {
 
+    Post.find({tags : req.body.petname})  // here we get the posts and return the images.
+    .then( (posts) => {
+        
+        var postImages=getPostsImages(posts)
+        res.status(200).json(postImages)
+
+    })
+
+
+
+
+
+}
 //getAllPets
 export function getAllByUser(req, res) {
     Pet
-    .find({owner : req.body.owner } ).sort({createdAt:-1})
+    .find({owner : req.body.owner } ).sort({createdAt:-1})  // here we got pets, 
 
-    .then((docs)  => {
-      
-          
+    .then((docs)  => {  // what we gonna do with our pets 
+
+       
         
         res.status(200).json(encodeAllElements(docs));
 
       
       })
     .catch(err => {
+            console.log("first one is the prob"); 
         res.status(500).json({ error: err });
     });
 
@@ -100,6 +116,18 @@ function encode_base64(filename) {
     }
    
     return documents;
+  }
+
+  function getPostsImages(docs) {
+    var postsImages = [] ; 
+    for (var i=0;i<docs.length;i++)  
+    {
+        postsImages.push(docs[i].images); 
+       
+    }
+
+return postsImages; 
+
   }
   
   

@@ -31,7 +31,8 @@ const petSchema = new Schema(
 
         age: { type: String , 
             required : false
-        }
+        }, 
+        
     },
     {
         timestamps: true

@@ -5,7 +5,7 @@ import fs from 'fs'
 
 export function getAll(req, res) {
     Post
-    .find({}).sort({ date: -1 }).populate('owner','username avatar')
+    .find({}).sort({ date: -1 }).limit(2).populate('owner','username avatar')
 
     .then(docs => {
         
@@ -14,10 +14,12 @@ export function getAll(req, res) {
             for(var j=0;j<docs.length;j++)
             {
                 if(docs[j].owner){
+
                     if(docs[j].owner.avatar){
               if(docs[j].owner.avatar.length<100)
                 docs[j].owner.avatar= fs.readFileSync(docs[j].owner.avatar, "base64");
                     }
+
                 }
                }
           
@@ -62,7 +64,8 @@ export function addOnce(req, res) {
             images:imagetab,
             owner:req.body.owner,
             likescount:0,
-            likes:[]
+            likes:[], 
+            tags : req.body.tags
             
         })
         .then(newPost => {
