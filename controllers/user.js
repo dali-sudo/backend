@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import notification from "../models/notification.js";
 import emailValidator from 'deep-email-validator';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
@@ -236,6 +237,7 @@ export function Find(req, res) {
 export async function Follow(req, res) {
   // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
 try {
+  let date_ob = new Date();
   
     let promise1 = User.findOneAndUpdate(
       { "_id":req.body.myid }, { $inc:  {followingcount:1},$push:{following:req.body.followed}}
@@ -244,10 +246,21 @@ try {
     let promise2 = User.findOneAndUpdate(
       { "_id":req.body.followed }, { $inc:{followerscount: 1},$push:{followers:req.body.myid}}
     );
-
     
+   
     let doc = await Promise.all([promise1, promise2]);
-
+    let promise3 =   notification
+    .create({
+         sender:req.body.myid,
+         receiver:req.body.followed,
+         type:"follow",
+         title:doc[0].username+ " "+"followed you",
+         content:"",
+         is_read:false,
+         created_at:date_ob,
+        
+    })
+    let doc3 = await (promise3)
     const docs = [
       { myid:doc[0].id,followed:doc[1].id },
     ];

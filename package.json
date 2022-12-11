@@ -4,6 +4,7 @@
   "description": "This is the 2nd APP workshop for the SGE module.",
   "main": "server.js",
   "type": "module",
+  
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
@@ -25,7 +26,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.1",
     "morgan": "^1.10.0",
-    "multer": "^1.4.4"
+    "multer": "^1.4.4",
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

@@ -1,4 +1,6 @@
 import Post from "../models/post.js";
+import notification from "../models/notification.js";
+import User from "../models/user.js";
 import fs from 'fs'
 
 export function getAll(req, res) {
@@ -19,7 +21,17 @@ export function getAll(req, res) {
                 }
                }
           
-       
+               for(var j=0;j<docs.length;j++)
+               {
+                   for(var i=0;i<docs[j].images.length;i++)
+                   {
+                   if(docs[j].images){
+                       if(docs[j].images[i]){
+                 if(docs[j].images[i].length<100)
+                 docs[j].images[i]= fs.readFileSync(docs[j].images[i], "base64");
+                       }
+                   }
+                  }}
        
         res.status(200).json(docs);
         
@@ -32,15 +44,22 @@ export function getAll(req, res) {
 }
 
 export function addOnce(req, res) {
+   var  imagetab=[];
+    var imagePath="";
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
-  
+    for(var i=0;i<req.body.images.length;i++){
+        console.log("image"+i)
+        imagePath = `./uploads/${Math.random().toString(36).substring(2,7)}.png`;
+    base64_decode(req.body.images[i],imagePath);
+    imagetab.push(imagePath)
+    }
         // Invoquer la méthode create directement sur le modèle
         let date_ob = new Date();
         Post
         .create({
             descreption: req.body.descreption,
             date: date_ob ,
-            images: req.body.images,
+            images:imagetab,
             owner:req.body.owner,
             likescount:0,
             likes:[]
@@ -54,19 +73,39 @@ export function addOnce(req, res) {
         });
     
 }
-export function addLike(req, res) {
+export async function addLike(req, res) {
+    let date_ob = new Date();
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
-  
+  try{
         // Invoquer la méthode create directement sur le modèle
-        Post
+        let promise1 = 
+         Post
         .findOneAndUpdate({ "_id":req.body.id }, { likescount: req.body.likescount,$push:{likes:req.body.like}})
-        .then(doc => {
-            res.status(200).json(doc);
+        let doc = await (promise1)
+        if(req.body.like==doc.owner){
+        }
+        else{
+            console.log(req.body.like+" "+doc.owner)
+            let promise3=User.findOne({ "_id":req.body.like })
+            let doc3 = await (promise3)
+        let promise2 =   notification
+        .create({
+             sender:req.body.like,
+             receiver:doc.owner,
+             type:"like",
+             title:doc3.username+" "+"liked your Post",
+             content:"",
+             is_read:false,
+             created_at:date_ob,
+            
         })
-        .catch(err => {
-            res.status(500).json({ error: err });
-        });
-        
+        let doc2 = await (promise2)
+    }
+        res.status(200).json(doc);
+    } catch(err){
+     res.status(500).json(err);
+    
+    }
 }
 export function RemoveLike(req, res) {
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
@@ -112,9 +151,92 @@ function encode_base64(filename) {
                 }
             }
            }
+           
+        for(var j=0;j<docs.length;j++)
+        {
+            for(var i=0;i<docs[j].images.length;i++)
+            {
+            if(docs[j].images){
+                if(docs[j].images[i]){
+          if(docs[j].images[i].length<100)
+          docs[j].images[i]= fs.readFileSync(docs[j].images[i], "base64");
+                }
+            }
+           }}
     
        
        
+        res.status(200).json(docs);
+        
+    
+    })
+    .catch(err => {
+        res.status(500).json({ error: err });
+    });
+
+}
+export function getAllwithimage(req, res) {
+    Post
+    .aggregate([
+        
+           { $match:{images: { $ne: [] }}},
+           {
+        
+            $addFields: {
+                tmpOrder: { '$rand': {} },
+            }},
+           
+        {
+            $sort: {
+                tmpOrder: 1,
+            },
+        },
+        {
+            $project:
+             {
+               
+                image: { $arrayElemAt: [ "$images", 0 ] },
+              
+             }
+          }
+    ]) .then(docs => {
+           
+
+        for(var j=0;j<docs.length;j++)
+        {
+
+            if(docs[j].image){
+              
+          if(docs[j].image.length<100)
+          docs[j].image= fs.readFileSync(docs[j].image, "base64");
+                }
+            }
+           
+        res.status(200).json(docs);
+        
+    
+    })
+    .catch(err => {
+        res.status(500).json({ error: err });
+    });
+
+}
+export function getPostByid(req, res) {
+    Post.
+    findOne({_id:req.body.id}).populate('owner','username avatar')
+    .then(docs => {
+            docs.owner.avatar= fs.readFileSync(docs.owner.avatar, "base64");
+           
+                for(var i=0;i<docs.images.length;i++)
+                {
+             
+                    if(docs.images[i]){
+              if(docs.images[i].length<100)
+              docs.images[i]= fs.readFileSync(docs.images[i], "base64");
+                    }
+                
+               }
+            
         res.status(200).json(docs);
         
     

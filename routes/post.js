@@ -1,9 +1,20 @@
 import express from "express";
 import { body } from "express-validator";
-import { addOnce,getAll,addLike,RemoveLike,getPostsByUser} from "../controllers/post.js";
+import { addOnce,getAll,addLike,RemoveLike,getPostsByUser,getAllwithimage,getPostByid} from "../controllers/post.js";
 
 const router = express.Router();
-
+router
+  .route("/discoverPost")
+  .post(
+ 
+    getPostByid
+  );
+router
+  .route("/discover")
+  .post(
+ 
+    getAllwithimage
+  );
 router
   .route("/addPost")
   .post(
