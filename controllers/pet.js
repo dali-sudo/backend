@@ -56,12 +56,17 @@ export function addOnce(req, res) {
 }
 
 export function getPetTags (req, res) {
-
-    Post.find({tags : req.body.petname})  // here we get the posts and return the images.
+    let newPet = {};
+    Post.find({tags : req.body.name})  // here we get the posts and return the images.
     .then( (posts) => {
         
         var postImages=getPostsImages(posts)
-        res.status(200).json(postImages)
+
+        newPet = {
+            images : postImages
+         
+        }
+        res.status(200).json(newPet)
 
     })
 
@@ -85,6 +90,26 @@ export function getAllByUser(req, res) {
       })
     .catch(err => {
             console.log("first one is the prob"); 
+        res.status(500).json({ error: err });
+    });
+
+}
+
+//getOne By User
+export function getSingleByUser(req, res) {
+    Pet
+    .findOne({ name : req.body.name }) // here we got pets, 
+
+    .then((doc)  => {  // what we gonna do with our pets 
+
+       
+        doc.avatar = encode_base64(doc.avatar);
+        res.status(200).json(doc);
+
+      
+      })
+    .catch(err => {
+            
         res.status(500).json({ error: err });
     });
 
@@ -118,11 +143,15 @@ function encode_base64(filename) {
     return documents;
   }
 
-  function getPostsImages(docs) {
+  function getPostsImages(posts) {
     var postsImages = [] ; 
-    for (var i=0;i<docs.length;i++)  
+    for (var i=0;i<posts.length;i++)  
     {
-        postsImages.push(docs[i].images); 
+        for (var j=0;j<posts[i].images.length;j++) 
+        {
+            postsImages.push(encode_base64(posts[i].images[j])); 
+        }
+        
        
     }
 
