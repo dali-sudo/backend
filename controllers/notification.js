@@ -3,7 +3,24 @@ import { waitForDebugger } from 'inspector';
 import { join } from 'path';
 import notification from "../models/notification.js";
 
+var  notifications=[];
+var i=0;
+export function addnotif(userid){
+    var notif = new Object();
+    notif.id=i
+    notif.userid =userid;
+    i++
+   notifications.push(notif);
+   console.log("notif added"+notifications[0].userid)
+ 
+}
 
+export function deletenotif(userid){
+    for( var i=0, len= notifications.length; i<len; ++i ){
+        var n =  notifications[i];
+        console.log("deleted")
+    }
+}
 export function addOnce(req, res) {
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
     let date_ob = new Date();
@@ -27,7 +44,7 @@ export function addOnce(req, res) {
         });
     
 }
-export function getMyNotifications(req, res) {
+export function getMyNotifications2(req, res) {
     notification.
     find({receiver:req.body.id}).populate('sender','username avatar')
     .then(docs => {
@@ -45,5 +62,47 @@ export function getMyNotifications(req, res) {
     .catch(err => {
         res.status(500).json({ error: err });
     });
+
+}
+export async function getMyNotifications(req, res) {
+
+   try{
+    let c=0;
+  var t=false
+while(t==false){
+    
+    for( var i=0, len=notifications.length; i<len; ++i ){
+       
+  
+        if(notifications[i].userid ==req.body.id){
+          console.log("found")
+           t=true
+         
+        }
+    }
+    await new Promise(resolve => setTimeout(resolve, 5000));
+ 
+}
+
+   let promise2 = notification.
+    find({receiver:req.body.id,is_read:false}).populate('sender','username avatar')
+   let  docs = await(promise2)
+  
+   deletenotif(req.body.id)
+ 
+        for(var j=0;j<docs.length;j++)
+        {
+                if(docs[j].sender.avatar){
+          if(docs[j].sender.avatar.length<100)
+            docs[j].sender.avatar= fs.readFileSync(docs[j].sender.avatar,"base64");
+                }
+            
+           }
+           res.status(200).json(docs);
+           let promise3 = notification.updateMany({receiver:req.body.id}, {$set: { is_read:true }})
+           let  doc2 = await(promise3)
+        } catch(err){
+            res.status(500).json(err);
+           }
 
 }

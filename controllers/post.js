@@ -2,10 +2,51 @@ import Post from "../models/post.js";
 import notification from "../models/notification.js";
 import User from "../models/user.js";
 import fs from 'fs'
-
+import { addnotif} from "../controllers/notification.js";
 export function getAll(req, res) {
     Post
-    .find({}).sort({ date: -1 }).limit(2).populate('owner','username avatar')
+    .find({}).sort({ date: -1 }).populate('owner','username avatar')
+
+    .then(docs => {
+        
+      
+        
+            for(var j=0;j<docs.length;j++)
+            {
+                if(docs[j].owner){
+
+                    if(docs[j].owner.avatar){
+              if(docs[j].owner.avatar.length<100)
+                docs[j].owner.avatar= fs.readFileSync(docs[j].owner.avatar, "base64");
+                    }
+
+                }
+               }
+          
+               for(var j=0;j<docs.length;j++)
+               {
+                   for(var i=0;i<docs[j].images.length;i++)
+                   {
+                   if(docs[j].images){
+                       if(docs[j].images[i]){
+                 if(docs[j].images[i].length<100)
+                 docs[j].images[i]= fs.readFileSync(docs[j].images[i], "base64");
+                       }
+                   }
+                  }}
+       
+        res.status(200).json(docs);
+        
+    
+    })
+    .catch(err => {
+        res.status(500).json({ error: err });
+    });
+
+}
+export function pagination(req, res) {
+    Post
+    .find({}).sort({ date: -1 }).skip(req.body.skip).limit(req.body.limit).populate('owner','username avatar')
 
     .then(docs => {
         
@@ -83,7 +124,7 @@ export async function addLike(req, res) {
         // Invoquer la méthode create directement sur le modèle
         let promise1 = 
          Post
-        .findOneAndUpdate({ "_id":req.body.id }, { likescount: req.body.likescount,$push:{likes:req.body.like}})
+        .findOneAndUpdate({ "_id":req.body.id }, { $inc: { likescount:1},$push:{likes:req.body.like}})
         let doc = await (promise1)
         if(req.body.like==doc.owner){
         }
@@ -103,6 +144,7 @@ export async function addLike(req, res) {
             
         })
         let doc2 = await (promise2)
+        addnotif(doc.owner)
     }
         res.status(200).json(doc);
     } catch(err){
@@ -115,7 +157,7 @@ export function RemoveLike(req, res) {
   
         // Invoquer la méthode create directement sur le modèle
         Post
-        .findOneAndUpdate({ "_id":req.body.id }, { likescount: req.body.likescount,$pull:{likes:req.body.like}})
+        .findOneAndUpdate({ "_id":req.body.id }, {$inc: { likescount:-1},$pull:{likes:req.body.like}})
         .then(doc => {
             res.status(200).json(doc);
         })

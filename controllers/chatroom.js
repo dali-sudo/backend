@@ -28,7 +28,7 @@ export function sendMessage(req, res) {
     if(req.body.type=="string")
   {
     chatroom
-        .findOneAndUpdate({ "_id":req.body.id }, { $push:{chat:{message:req.body.message,type:req.body.type,senderid:req.body.senderid}}},{new: true})
+        .findOneAndUpdate({ "_id":req.body.id }, { $push:{chat:{message:req.body.message,type:req.body.type,senderid:req.body.senderid}}},{new: true}).populate('Users','username')
         .then(doc => {
             res.status(200).json(doc);
         })
@@ -43,7 +43,7 @@ export function sendMessage(req, res) {
     base64_decode(req.body.message,imagePath);
 
         chatroom
-        .findOneAndUpdate({ "_id":req.body.id }, { $push:{chat:{message:imagePath,type:req.body.type,senderid:req.body.senderid}}},{new: true})
+        .findOneAndUpdate({ "_id":req.body.id }, { $push:{chat:{message:imagePath,type:req.body.type,senderid:req.body.senderid}}},{new: true}).populate('Users','username')
         .then(doc => {
             res.status(200).json(doc);
         })

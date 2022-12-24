@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv/config'
 import fs from 'fs'
-
+import { addnotif} from "../controllers/notification.js";
 
 export async function signin(req, res) {
   try {
@@ -261,6 +261,7 @@ try {
         
     })
     let doc3 = await (promise3)
+    addnotif(req.body.followed)
     const docs = [
       { myid:doc[0].id,followed:doc[1].id },
     ];

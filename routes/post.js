@@ -1,6 +1,6 @@
 import express from "express";
 import { body } from "express-validator";
-import { addOnce,getAll,addLike,RemoveLike,getPostsByUser,getAllwithimage,getPostByid} from "../controllers/post.js";
+import { addOnce,getAll,addLike,RemoveLike,getPostsByUser,getAllwithimage,getPostByid,pagination} from "../controllers/post.js";
 
 const router = express.Router();
 router
@@ -8,6 +8,12 @@ router
   .post(
  
     getPostByid
+  );
+  router
+  .route("/getPagination")
+  .post(
+ 
+    pagination
   );
 router
   .route("/discover")
