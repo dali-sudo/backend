@@ -65,7 +65,73 @@ export async function signin(req, res) {
   }
   
 }
+export async function googlesignin(req,res){
 
+  try {
+
+      const user = await  User.findOne({ email: req.body.email})
+  
+      if (user ) {
+      
+        
+          if (user.avatar) 
+          {
+            const imagePath = user.avatar
+            user.avatar= encode_base64(imagePath)
+
+          }
+          user.token= createToken(user._id) ; 
+        
+          var data = {
+            message: "User logged in ", 
+             data:user
+          };
+          res.status(200).json(data); 
+  
+    } else {
+
+  
+      const token = jwt.sign(
+        { user_id: req.body.id, email: req.body.email },
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+      // Creating user with token and encrypted password on DB and response it 
+      User.create({
+        username: req.body.username,
+        email: req.body.email,
+        //avatar: `${req.protocol}://${req.get("host")}/img/${req.file.filename}`,
+        followerscount:0,
+        followingcount:0,
+        followers:[],
+        following:[],
+  
+      })
+        .then((newUser) => {
+          newUser.token= createToken(newUser._id) ; 
+          var data = {
+            message: "User logged in ", 
+             data:newUser
+          };
+         
+          res.status(200).json(data);
+        
+        })
+        .catch((err) => {
+          res.status(500).json({ error: err });
+          
+          
+        });
+      }
+  } catch (err) 
+  {
+    console.log(err);
+  }
+
+
+}
 
 export async function signup(req, res) {
   const {valid, reason , validators} = await isEmailValid(req.body.email) ;

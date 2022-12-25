@@ -3,9 +3,14 @@ import { body } from "express-validator";
 
 import multer from "../middlewares/multer-config.js";
 import auth from '../middlewares/auth.js'
-import { signin, signup, putOnce ,Find,getUser,Follow,UnFollow} from "../controllers/user.js";
+import { signin, signup, putOnce ,Find,getUser,Follow,UnFollow,googlesignin} from "../controllers/user.js";
 
 const router = express.Router();
+router
+  .route("/googleSignin")
+  .post(
+    googlesignin
+  );
 router
   .route("/find")
   .post(
