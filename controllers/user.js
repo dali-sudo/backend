@@ -107,7 +107,7 @@ export async function googlesignin(req,res){
         followingcount:0,
         followers:[],
         following:[],
-        avatar:null
+        avatar:"./public/images/profilePicPlaceHolder.png"
   
       })
         .then((newUser) => {
@@ -168,7 +168,7 @@ export async function signup(req, res) {
       followingcount:0,
       followers:[],
       following:[],
-      avatar:null
+      avatar: "./public/images/profilePicPlaceHolder.png"
 
     })
       .then((newUser) => {
@@ -184,8 +184,6 @@ export async function signup(req, res) {
       })
       .catch((err) => {
         res.status(500).json({ error: err });
-        
-        
       });
   
 
