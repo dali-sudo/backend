@@ -5,6 +5,7 @@ import fs from 'fs'
 import { addnotif} from "../controllers/notification.js";
 export function getAll(req, res) {
     Post
+
     .find({}).sort({ date: -1 }).populate('owner','username avatar')
 
     .then(docs => {
@@ -46,7 +47,8 @@ export function getAll(req, res) {
 }
 export function pagination(req, res) {
     Post
-    .find({}).sort({ date: -1 }).skip(req.body.skip).limit(req.body.limit).populate('owner','username avatar')
+    .find({}).sort({ date: -1 }).skip(req.body.skip).limit(req.body.limit).populate('owner','username avatar').populate('tags' , 'name')
+
 
     .then(docs => {
         

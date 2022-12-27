@@ -21,7 +21,7 @@ const postSchema = new Schema(
         },
         likes: [ { type: Schema.Types.ObjectId, ref: 'User' }], 
         tags : [{ 
-            type: String 
+            type: Schema.Types.ObjectId, ref: 'Pet'
         }]
     },
     

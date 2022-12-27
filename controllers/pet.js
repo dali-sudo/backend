@@ -57,7 +57,7 @@ export function addOnce(req, res) {
 
 export function getPetTags (req, res) {
     let newPet = {};
-    Post.find({tags : req.body.name})  // here we get the posts and return the images.
+    Post.find({tags : req.body._id})  // here we get the posts and return the images.
     .then( (posts) => {
         
         var postImages=getPostsImages(posts)
@@ -98,7 +98,7 @@ export function getAllByUser(req, res) {
 //getOne By User
 export function getSingleByUser(req, res) {
     Pet
-    .findOne({ name : req.body.name }) // here we got pets, 
+    .findOne({ _id : req.body._id }) // here we got pets, 
 
     .then((doc)  => {  // what we gonna do with our pets 
 
@@ -115,7 +115,21 @@ export function getSingleByUser(req, res) {
 
 }
 
+export function deletePet(req, res) {
+    Pet
+    .deleteOne({ _id: req.body._id })
+    .then(
+       {
+            message : res.status(200).json(" Deleted Successfully")
+       } 
+    )
+    .catch(err => {
+            
+        res.status(500).json({ error: err });
 
+    });
+
+}
 
 function encode_base64(filename) {
     return fs.readFileSync(filename, "base64");
