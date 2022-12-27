@@ -46,7 +46,7 @@ export function addOnce(req, res) {
 }
 export function getMyNotifications2(req, res) {
     notification.
-    find({receiver:req.body.id}).populate('sender','username avatar')
+    find({receiver:req.body.id}).populate('sender','username avatar').limit(5)
     .then(docs => {
         for(var j=0;j<docs.length;j++)
         {

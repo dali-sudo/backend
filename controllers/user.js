@@ -368,11 +368,9 @@ try {
 
       export function getUser(req, res) {
         User
-        .findOne({"_id":req.body.id }, { 'username':true,'followerscount':true,'followingcount':true,'avatar':true,'followers':true})
+        .findOne({"_id":req.body.id }, { 'username':true,'followerscount':true,'followingcount':true,'followers':true})
       
         .then(docs => {   
-
-          docs.avatar= fs.readFileSync(docs.avatar, "base64");
             res.status(200).json(docs);
         })
         .catch(err => {
