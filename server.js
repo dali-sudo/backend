@@ -15,13 +15,17 @@ import notification from './routes/notifications.js';
 
 const app = express();
 const port = process.env.PORT || 9090;
-const databaseName = 'Petbook';
+const databaseName = 'test';
+const MONGOUSER='mongo'
+const MONGOPASSWORD='cGoppOKOnWLtoyvRHrw2'
+const MONGOHOST='containers-us-west-44.railway.app'
+const MONGOPORT='8052'
 
 mongoose.set('debug', true);
 mongoose.Promise = global.Promise;
 
 mongoose
-  .connect(`mongodb://localhost:27017/${databaseName}`)
+  .connect(`mongodb://mongo:cGoppOKOnWLtoyvRHrw2@containers-us-west-44.railway.app:8052`)
   .then(() => {
     console.log(`Connected to ${databaseName}`);
   })
