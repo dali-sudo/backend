@@ -30,7 +30,7 @@ router
   router
   .route("/getAll")
   .post(
-    pagination
+    getAll
   );
   router
   .route("/getPostByUser")
