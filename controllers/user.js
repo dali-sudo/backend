@@ -371,9 +371,11 @@ try {
         .findOne({"_id":req.body.id }, { 'username':true,'followerscount':true,'followingcount':true,'avatar':true,'followers':true})
       
         .then(docs => {   
-
+if(docs.avatar!=null){
           docs.avatar= fs.readFileSync(docs.avatar, "base64");
+}
             res.status(200).json(docs);
+
         })
         .catch(err => {
             res.status(500).json({ error: err });

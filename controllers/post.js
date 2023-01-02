@@ -270,7 +270,7 @@ export function getAllwithimage(req, res) {
 }
 export function getPostByid(req, res) {
     Post.
-    findOne({_id:req.body.id}).populate('owner','username avatar')
+    findOne({_id:req.body.id}).populate('owner','username avatar').populate('tags' , 'name')
     .then(docs => {
             docs.owner.avatar= fs.readFileSync(docs.owner.avatar, "base64");
            
