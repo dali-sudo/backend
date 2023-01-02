@@ -16,9 +16,13 @@ export function addnotif(userid){
 }
 
 export function deletenotif(userid){
+    var n
     for( var i=0, len= notifications.length; i<len; ++i ){
-        var n =  notifications[i];
+       n =  notifications[i];
+       if(n.userid==userid){
+       notifications.splice(i,1);
         console.log("deleted")
+       }
     }
 }
 export function addOnce(req, res) {
@@ -69,26 +73,26 @@ export async function getMyNotifications(req, res) {
    try{
     let c=0;
   var t=false
-while(t==false){
+while(t==false){ 
     
     for( var i=0, len=notifications.length; i<len; ++i ){
        
   
         if(notifications[i].userid ==req.body.id){
           console.log("found")
-           t=true
-         
+           t=true;
+         break;
         }
     }
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
  
 }
-
+deletenotif(req.body.id)
    let promise2 = notification.
     find({receiver:req.body.id,is_read:false}).populate('sender','username avatar')
    let  docs = await(promise2)
   
-   deletenotif(req.body.id)
+  
  
         for(var j=0;j<docs.length;j++)
         {

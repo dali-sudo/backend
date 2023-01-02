@@ -18,8 +18,13 @@ export async function signin(req, res) {
      
   
       const user = await  User.findOne({ email: req.body.email})
+      
   
       if (user ) {
+        if(!user.password)
+        {
+          res.status(401).send("cant find user !");
+        }
         if (await bcrypt.compare(req.body.password, user.password))
         {  
           if (user.avatar) 
@@ -184,6 +189,8 @@ export async function signup(req, res) {
       })
       .catch((err) => {
         res.status(500).json({ error: err });
+        
+        
       });
   
 

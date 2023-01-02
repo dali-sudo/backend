@@ -6,7 +6,7 @@ import { addnotif} from "../controllers/notification.js";
 export function getAll(req, res) {
     Post
 
-    .find({}).sort({ date: -1 }).populate('owner','username avatar')
+    .find({}).sort({ date: -1 }).populate('owner','username avatar').populate('tags' , 'name')
 
     .then(docs => {
         
@@ -45,13 +45,19 @@ export function getAll(req, res) {
     });
 
 }
-export function pagination(req, res) {
-    Post
-    .find({}).sort({ date: -1 }).skip(req.body.skip).limit(req.body.limit).populate('owner','username avatar').populate('tags' , 'name')
+export async function  pagination(req, res) {
+
+  try{
+
+  let promise1=User.findById(req.body.id)
+  let doc1=await(promise1)
+doc1.following.push(req.body.id)
+   let promise2= Post
+    .find({owner:doc1.following}).sort({ date: -1 }).skip(req.body.skip).limit(req.body.limit).populate('owner','username avatar').populate('tags' , 'name')
 
 
-    .then(docs => {
-        
+    
+     let docs=await(promise2)
       
         
             for(var j=0;j<docs.length;j++)
@@ -81,11 +87,11 @@ export function pagination(req, res) {
         res.status(200).json(docs);
         
     
-    })
-    .catch(err => {
-        res.status(500).json({ error: err });
-    });
-
+    }
+    catch(err){
+        res.status(500).json(err);
+       
+       }
 }
 
 export function addOnce(req, res) {
@@ -183,7 +189,7 @@ function encode_base64(filename) {
   
   export function getPostsByUser(req, res) {
     Post
-    .find({owner:req.body.id}).sort({ date: -1 }).populate('owner','username avatar')
+    .find({owner:req.body.id}).sort({ date: -1 }).populate('owner','username avatar').populate('tags' , 'name')
 
 
     .then(docs => {
@@ -291,5 +297,21 @@ export function getPostByid(req, res) {
     .catch(err => {
         res.status(500).json({ error: err });
     });
+
+}
+export function deletepost(req, res) {
+    Post
+    .deleteOne({ _id: req.body.id })
+    .then(
+       {
+            message : res.status(200).json(" Deleted Successfully")
+       } 
+    )
+    .catch(err => {
+            
+        res.status(500).json({ error: err });
+
+    });
+
 
 }
