@@ -43,7 +43,7 @@ router
 
 router.route("/signin").post(signin);
 
-router
+router.use(auth)
   .route("/edit")
   .put(
   
