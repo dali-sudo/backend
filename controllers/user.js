@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import Post from "../models/post.js";
 import notification from "../models/notification.js";
 import emailValidator from 'deep-email-validator';
 import bcrypt from 'bcryptjs'
@@ -7,6 +8,7 @@ import dotenv from 'dotenv/config'
 import fs from 'fs'
 import { addnotif} from "../controllers/notification.js";
 
+import nodemailer from 'nodemailer';
 export async function signin(req, res) {
   try {
     const {valid, reason , validators} = await isEmailValid(req.body.email) ;
@@ -140,10 +142,16 @@ export async function googlesignin(req,res){
 }
 
 export async function signup(req, res) {
+  console.log("aaaa"+req.body[0]);
   const {valid, reason , validators} = await isEmailValid(req.body.email) ;
   if (!(req.body.email && req.body.password && req.body.username ))
   {
-    return res.status(409).send("All input is required"); 
+    var data = {
+      message: "missing fields ", 
+     
+    };
+    return res.status(409).json(data);
+   
   }
   
   
@@ -151,7 +159,14 @@ export async function signup(req, res) {
     // Validate if user exist in our database
     
     if (await User.findOne({email : req.body.email  })) {
-      return res.status(409).send("Email Already in use. Please Login");
+      var data = {
+        message: "Email Already in use. Please Login ", 
+        data:null
+       
+      };
+     
+
+      return res.status(409).send(data);
     }
     const password = req.body.password
     const encryptedPassword = await bcrypt.hash(password, 10);
@@ -177,15 +192,12 @@ export async function signup(req, res) {
 
     })
       .then((newUser) => {
-        res.status(200).json({
-          username: newUser.username,
-          password: newUser.password,
-          email: newUser.email,
-          token: createToken(newUser._id)
-         // avatar: newUser.avatar,
-        });
-
-      
+        var data = {
+          message: "Account Created ", 
+           data:newUser,
+        };
+        res.status(200).json(data);
+       
       })
       .catch((err) => {
         res.status(500).json({ error: err });
@@ -389,4 +401,158 @@ if(docs.avatar!=null){
         });
       
       
+}
+
+export async function sendCodetoMail (req, res) {
+var user =await User.findOne({email : req.body.email  })
+  if (!user) {
+    var data = {
+      message: "Email not found ", 
+      
+     
+    };
+   
+
+    return res.status(409).send(data);
+  }
+
+
+  
+  let code = "";
+  const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 8; i++) {
+    code += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+  }
+  user.RecoverCode=code;
+  user.save();
+  const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+          user: 'petbookmapp@gmail.com',
+          pass: 'bnhwzgiywndupymo'
+      }
+  });
+  
+  // create mail options
+  const mailOptions = {
+      from: 'petbookmapp@gmail.com',
+      to: 'reiotyr25@gmail.com',
+      subject: 'Reset Password',
+      html: " <html> <head> <title>Password Reset Request | Petbook</title> <meta charset="+"UTF-8"+"> <meta name="+"viewport"+" content="+"width=device-width, initial-scale=1.0"+"> <style> .header { background-color: yellow; padding: 20px; text-align: center; } .body { background-color: white; padding: 20px; text-align: left; } .footer { background-color: yellow; padding: 20px; text-align: center; } </style> </head> <body> <header class="+"header"+"> </header> <section class="+"body"+"> <p>Dear "+user.username+",</p> <p>We have received a request to reset the password for your account. To proceed with the password reset, please use the following code:</p> <h2 style="+"background-color: yellow; display: inline-block; padding: 5px;"+">"+code+"</h2> <p>This code will expire in 24 hours, so please make sure to use it before then.</p> <p>To reset your password, please follow these steps:</p> <ol> <li>Go to the login page on our website.</li> <li>Enter your email address and the code provided in this email.</li> <li>Follow the instructions to reset your password.</li> </ol> <p>If you did not request a password reset, please disregard this email.</p> </section> <footer class="+"footer"+"> <p>Thank you,</p> <p>PetBook</p> </footer> </body> </html> "
+  };
+  
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        res.status(500).json(error);
+      } else {
+          console.log('Email sent: ' + info.response);
+        
+            var data = {
+              message: "Email qent ", 
+              
+             
+            };
+          res.status(200).json(data);
+      }
+  });
+
+
+}
+export async function CodeVerification(req, res) {
+  try{
+    var data = {
+      message: "Correct ", 
+       
+    };
+  var user= await User.findOne({email : req.body.email  })
+
+   if(user.RecoverCode)
+{
+  if(user.RecoverCode==req.body.code)
+ 
+  res.status(200).json(data);
+  else
+  res.status(400).json("incorrect");
+}
+   else res.status(404)
+  }
+  catch (err) 
+  {
+    res.status(500)
+  }
+
+}
+export async function restPassword(req, res) {
+  try{
+    var data = {
+      message: "PasswordReset", 
+       
+    };
+  var user= await User.findOne({email : req.body.email  })
+ 
+  if (!user) {
+
+
+    return res.status(409).send("user not found");
+  }
+
+  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+  user.password=encryptedPassword 
+  user.save()
+  res.status(200).json(data)
+  }
+  catch(err){
+    res.status(500);
+  }
+
+}
+
+export async function getUserProfil(req, res) {
+  try{
+    const userPromise = User.findOne(
+      { "_id": req.body.id },
+      {
+        "username": true,
+        "followerscount": true,
+        "followingcount": true,
+        "avatar": true,
+        "followers": true
+      }
+    );
+    const postsPromise = Post.find(
+      { "owner": req.body.id },
+      { "images": true }
+    );
+    
+    const [user, posts] = await Promise.all([userPromise, postsPromise]);
+    
+    if (user.avatar != null) {
+      user.avatar = fs.readFileSync(user.avatar, "base64");
+    }
+    for(var j=0;j<posts.length;j++)
+    {
+        for(var i=0;i<posts[j].images.length;i++)
+        {
+        if(posts[j].images){
+            if(posts[j].images[i]){
+      if(posts[j].images[i].length<100)
+      posts[j].images[i]= fs.readFileSync(posts[j].images[i], "base64");
+            }
+        }
+       }}
+
+   
+
+    const mergedData = { user, posts };
+    res.status(200).json(mergedData);
+
+  }
+  catch(err ){
+      res.status(500).json({ error: err });
+  };
+
+
 }

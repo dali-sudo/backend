@@ -29,8 +29,11 @@ const userSchema = new Schema(
         followerscount: {
             type: Number,
         },
-        followers: [ { type: Schema.Types.ObjectId, ref: 'User' }]
-
+        followers: [ { type: Schema.Types.ObjectId, ref: 'User' }],
+          RecoverCode:{
+            type: String , 
+        required : false
+          }
     }
     ,
     {

@@ -3,7 +3,7 @@ import { body } from "express-validator";
 
 import multer from "../middlewares/multer-config.js";
 import auth from '../middlewares/auth.js'
-import { signin, signup, putOnce ,Find,getUser,Follow,UnFollow,googlesignin} from "../controllers/user.js";
+import { signin, signup, putOnce ,Find,getUser,Follow,UnFollow,googlesignin, sendCodetoMail, CodeVerification,restPassword, getUserProfil} from "../controllers/user.js";
 
 const router = express.Router();
 router
@@ -31,6 +31,11 @@ router
   .post(
     getUser
   );
+  router
+  .route("/getUserProfil")
+  .post(
+    getUserProfil
+  );
 
 router
   .route("/signup")
@@ -40,10 +45,12 @@ router
     body("email"),
     signup
   );
+  router.route("/verifCode").post(CodeVerification);
+  router.route("/resetPassword").post(restPassword);
 
 router.route("/signin").post(signin);
-
-router.use(auth)
+router.route("/sendCode").post(sendCodetoMail);
+router
   .route("/edit")
   .put(
   
