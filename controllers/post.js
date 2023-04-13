@@ -97,13 +97,23 @@ doc1.following.push(req.body.id)
 export function addOnce(req, res) {
    var  imagetab=[];
     var imagePath="";
+     
+    var data = {
+        message: "Post Created ", 
+        
+      };
+ 
+  
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
     for(var i=0;i<req.body.images.length;i++){
         console.log("image"+i)
         imagePath = `./uploads/${Math.random().toString(36).substring(2,7)}.png`;
     base64_decode(req.body.images[i],imagePath);
+    console.log(imagePath)
+
     imagetab.push(imagePath)
     }
+    console.log("tab"+imagetab)
         // Invoquer la méthode create directement sur le modèle
         let date_ob = new Date();
         Post
@@ -118,9 +128,10 @@ export function addOnce(req, res) {
             
         })
         .then(newPost => {
-            res.status(200).json(newPost);
+            res.status(200).json(data);
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({ error: err });
         });
     
