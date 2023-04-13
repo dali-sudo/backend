@@ -8,17 +8,17 @@ import fs from 'fs';
 //add a pet 
 export function addOnce(req, res) {
     // Trouver les erreurs de validation dans cette requête et les envelopper dans un objet
+    console.log(req.body);
     let newPet = {};
         // Invoquer la méthode create directement sur le modèle
         if (req.body.avatar)
         { 
+
           //convert string into actual image and save it to imgs
          // const imagePath = `${req.protocol}://${req.get("host")}/uploads/${Math.random().toString(36).substring(2,7)}.png`
          var imagePath = `./uploads/${Math.random().toString(36).substring(2,7)}.png`;
           base64_decode(req.body.avatar,imagePath);
-          
-          
-          
+            console.log(imagePath)
           newPet = {
             name: req.body.name,
             type: req.body.type ,
@@ -47,13 +47,21 @@ export function addOnce(req, res) {
         Pet
         .create( newPet)
         .then(newPet => {
-            res.status(200).json(newPet);
+            if (req.body.avatar) {
+                // Return the encoded image path in the response
+                const encodedImagePath = encode_base64(imagePath);
+                res.status(200).json({ ...newPet._doc, avatar: encodedImagePath });
+              } else {
+                // Return the new pet object without the avatar field
+                res.status(200).json(newPet);
+              }
         })
         .catch(err => {
             res.status(500).json({ error: err });
         });
     
 }
+
 
 export function getPetTags (req, res) {
     let newPet = {};
