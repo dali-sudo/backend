@@ -1,0 +1,26 @@
+version: '3'
+services:
+  node:
+    build: .
+    environment:
+      - MONGO_URL=mongodb://mongo
+    ports:
+      - 9090:9090
+    volumes:
+      - ./:/code
+    networks: 
+      - petbook
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+    networks: 
+      - petbook
+volumes:
+ mongodb:
+networks: 
+  petbook:

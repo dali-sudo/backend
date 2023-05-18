@@ -12,10 +12,10 @@ import postRoutes from './routes/post.js';
 import petRoutes from './routes/pet.js';
 import chatroomRoutes from './routes/chatroom.js';
 import notification from './routes/notifications.js';
-
+import swagger from './swagger.js';
 const app = express();
 const port = process.env.PORT || 9090;
-const databaseName = 'test';
+const databaseName = 'Petbook';
 const MONGOUSER='mongo'
 const MONGOPASSWORD='cGoppOKOnWLtoyvRHrw2'
 const MONGOHOST='containers-us-west-44.railway.app'
@@ -25,7 +25,7 @@ mongoose.set('debug', true);
 mongoose.Promise = global.Promise;
 
 mongoose
-  .connect(`mongodb://mongo:cGoppOKOnWLtoyvRHrw2@containers-us-west-44.railway.app:8052`)
+.connect(`mongodb://127.0.0.1/${databaseName}`)
   .then(() => {
     console.log(`Connected to ${databaseName}`);
   })
@@ -41,12 +41,16 @@ mongoose
   //app.use('/img', express.static('public/images'));
 
 
+
+
+// Serve Swagger UI
+
 app.use('/user', userRoutes);
 app.use('/post', postRoutes);
 app.use('/pet', petRoutes);
 app.use('/chat', chatroomRoutes);
 app.use('/notification', notification);
-
+app.use('/', swagger);
 
 app.post("/user/welcome", auth, (req, res) => {
   res.status(200).send("Welcome 🙌 ");

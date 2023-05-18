@@ -35,10 +35,8 @@ This is the server component of Petbook, a social network app where users can sh
 
 After starting the server, you can access the endpoints through the Swagger UI. Visit the following URL in your web browser:
 ```
-http://localhost:PORT/swagger-ui
+http://localhost:9090/api-docs
 ```
-Replace `PORT` with the appropriate port number.
-
 The Swagger UI will provide a user-friendly interface to explore and interact with the available endpoints.
 
 ## Folder Structure
