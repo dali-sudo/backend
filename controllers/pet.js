@@ -106,12 +106,13 @@ export function getAllByUser(req, res) {
 //getOne By User
 export function getSingleByUser(req, res) {
     Pet
-    .findOne({ _id : req.body._id }) // here we got pets, 
+    .findOne({ _id : req.body._id }) 
 
-    .then((doc)  => {  // what we gonna do with our pets 
+    .then((doc)  => {  
 
-       
+       if (doc.avatar) {
         doc.avatar = encode_base64(doc.avatar);
+       }
         res.status(200).json(doc);
 
       
@@ -122,7 +123,6 @@ export function getSingleByUser(req, res) {
     });
 
 }
-
 export function deletePet(req, res) {
     Pet
     .deleteOne({ _id: req.body._id })
