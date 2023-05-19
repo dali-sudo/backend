@@ -556,10 +556,9 @@ router.route("/signin").post(signin);
 router.route("/sendCode").post(sendCodetoMail);
 
 
-router
+router.use(auth)
   .route("/edit")
   .put(
-  
     body("username").isLength({ min: 5 }),
     body("password").isLength({ min: 5 }),
     body("email"),
